@@ -34,7 +34,7 @@
   </section>
 </template>
 <script>
-import { getTodos, addNewTodo, updateTodo, deleteTodo } from '@/api.js';
+import { getTodos, addNewTodo, updateTodo, deleteTodo } from '../api.js';
 
 var filters = {
   all: function (todos) {
@@ -53,6 +53,7 @@ var filters = {
 };
 
 export default {
+  name: 'TasksList',
   data() {
     return {
       // todos
@@ -112,7 +113,7 @@ export default {
     },
 
     editTodo: function (todo) {
-      this.beforeEditCache = todo.title;
+      this.beforeEditCache = todo.description;
       this.editedTodo = todo;
     },
 
@@ -131,7 +132,7 @@ export default {
 
     cancelEdit: function (todo) {
       this.editedTodo = null;
-      todo.title = this.beforeEditCache;
+      todo.description = this.beforeEditCache;
     },
 
     updateStatus: function(todo) {
