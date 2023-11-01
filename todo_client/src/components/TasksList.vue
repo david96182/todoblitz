@@ -10,11 +10,11 @@
       <ul class="todo-list">
         <li class="todo" v-for="todo in filteredTodos" :key="todo.id" :class="{completed: todo.completed, editing: todo == editedTodo}">
           <div class="view">
-            <input class="toggle" type="checkbox" v-model="todo.completed">
+            <input class="toggle" @click="updateStatus(todo)" type="checkbox" v-model="todo.completed">
             <label @dblclick="editTodo(todo)">{{todo.description}}</label>
             <button class="destroy" @click="removeTodo(todo)"></button>
           </div>
-          <input class="edit" type="text" v-model="todo.title" v-todo-focus="todo == editedTodo" @blur="doneEdit(todo)" @keyup.enter="doneEdit(todo)" @keyup.esc="cancelEdit(todo)">
+          <input class="edit" type="text" v-model="todo.description" v-todo-focus="todo == editedTodo" @blur="doneEdit(todo)" @keyup.enter="doneEdit(todo)" @keyup.esc="cancelEdit(todo)">
         </li>
       </ul>
     </section>
@@ -34,7 +34,7 @@
   </section>
 </template>
 <script>
-import { getTodos, addNewTodo } from '@/api.js';
+import { getTodos, addNewTodo, updateTodo, deleteTodo } from '@/api.js';
 
 var filters = {
   all: function (todos) {
@@ -81,6 +81,7 @@ export default {
       set: function (value) {
         this.todos.forEach(function (todo) {
           todo.completed = value;
+          updateTodo(todo)
         });
       }
     }
@@ -99,7 +100,6 @@ export default {
       }
 
       addNewTodo(value).then(todo => {
-        console.log(todo)
         this.todos.push(todo);
         this.newTodo = '';
       });
@@ -108,6 +108,7 @@ export default {
     removeTodo: function (todo) {
       var index = this.todos.indexOf(todo);
       this.todos.splice(index, 1);
+      deleteTodo(todo)
     },
 
     editTodo: function (todo) {
@@ -120,10 +121,12 @@ export default {
         return;
       }
       this.editedTodo = null;
-      todo.title = todo.title.trim();
-      if (!todo.title) {
+      todo.description = todo.description.trim();
+      if (!todo.description) {
         this.removeTodo(todo);
+        return;
       }
+      updateTodo(todo)
     },
 
     cancelEdit: function (todo) {
@@ -131,8 +134,17 @@ export default {
       todo.title = this.beforeEditCache;
     },
 
+    updateStatus: function(todo) {
+      todo.completed = !todo.completed
+      updateTodo(todo)
+    },
+
     removeCompleted: function () {
+      let todelete = filters.completed(this.todos)
       this.todos = filters.active(this.todos);
+      todelete.forEach(function (todo) {
+          deleteTodo(todo)
+        });
     },
 
     pluralize: function (word, count) {
@@ -153,7 +165,6 @@ export default {
 }
 </script>
 <style>
-@import '@/assets/styles/base.css';
 @import '@/assets/styles/index.css';
 [v-cloak] { display: none; }
 </style>
