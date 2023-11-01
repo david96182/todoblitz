@@ -8,7 +8,7 @@
       <input id="toggle-all" class="toggle-all" type="checkbox" v-model="allDone">
       <label for="toggle-all">Mark all as complete</label>
       <ul class="todo-list">
-        <li class="todo" v-for="todo in todos" :key="todo.id" :class="{completed: todo.completed, editing: todo == editedTodo}">
+        <li class="todo" v-for="todo in filteredTodos" :key="todo.id" :class="{completed: todo.completed, editing: todo == editedTodo}">
           <div class="view">
             <input class="toggle" type="checkbox" v-model="todo.completed">
             <label @dblclick="editTodo(todo)">{{todo.description}}</label>
@@ -60,6 +60,11 @@ export default {
       newTodo: '',
       editedTodo: null,
       visibility: 'all'
+    }
+  },
+  watch: {
+    '$route.name': function (newVisibility) {
+      this.visibility = newVisibility;
     }
   },
   computed: {
